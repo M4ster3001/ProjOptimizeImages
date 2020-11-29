@@ -11,6 +11,7 @@ namespace ImageTools
     public partial class Form1 : Form
     {
         private ImageList imgList = new ImageList() { ImageSize = new Size(60, 60) };
+        private int numberOfCores = Convert.ToInt32(Math.Round(Environment.ProcessorCount * 0.8, MidpointRounding.AwayFromZero));
 
         public Form1()
         {
@@ -33,10 +34,11 @@ namespace ImageTools
             DialogResult result_origem = folderBrowserOrigem.ShowDialog();
             listView1.View = View.LargeIcon;
             listView1.LargeImageList = imgList;
-            int qtdeImagens = Directory.GetFiles(folderBrowserOrigem.SelectedPath).Length;
 
             if (result_origem == DialogResult.OK)
             {
+                int qtdeImagens = Directory.GetFiles(folderBrowserOrigem.SelectedPath).Length;
+
                 boxOrigem.Text = folderBrowserOrigem.SelectedPath;
                 boxDestino.Text = folderBrowserOrigem.SelectedPath + "\\" + Guid.NewGuid().ToString();
                 lbQtde.Text = "Total de imagens na pasta: " + qtdeImagens.ToString();
@@ -60,8 +62,8 @@ namespace ImageTools
             {
                 listView1.Invoke(new MethodInvoker(delegate
                 {
-                    
-                    if(listView1.Items.Count >= 9) { listView1.Clear(); GC.Collect(1, GCCollectionMode.Forced); }
+
+                    if (listView1.Items.Count >= 9) { listView1.Clear(); GC.Collect(1, GCCollectionMode.Forced); }
 
                     string name = System.IO.Path.GetFileName(Path);
                     imgList.Images.Add(name, Image.FromFile(Path));
@@ -72,14 +74,9 @@ namespace ImageTools
                     lv.Tag = name;
 
                     listView1.EndUpdate();
-                    
+
                 }));
             }
-        }
-
-        private void listView1_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
-        {
-            e.Item = new ListViewItem(e.ItemIndex.ToString());
         }
 
         private void btnEnviar_Click(object sender, EventArgs e)
@@ -88,29 +85,20 @@ namespace ImageTools
             {
                 string path_origem = boxOrigem.Text;
                 string path_destino = boxDestino.Text;
-                string[] files = Directory.GetFiles(path_origem);
 
-                if (!Directory.Exists(path_destino))
-                {
-                    Directory.CreateDirectory(path_destino);
-                }
-
-                progressBar1.Visible = true;
-                progressBar1.Minimum = 0;
-                progressBar1.Maximum = files.Length;
-
-                btnEnviar.Enabled = false;
+                if (cbQualidade.Text == "") { MessageBox.Show("Selecione a qualidade"); return; }
+                if (path_origem == "") { MessageBox.Show("Selecione a pasta de origem"); return; }
+                if (path_destino == "") { MessageBox.Show("Selecione a pasta de destino"); return; }
 
                 int qualidade = Convert.ToInt32(cbQualidade.Text.Replace("%", "").ToString());
 
-                ThreadStart thSt = delegate
-                {
-                    Thread.Sleep(500);
+                progressBar1.Visible = true;
+                progressBar1.Minimum = 0;
+                progressBar1.Maximum = Directory.GetFiles(path_origem).Length;
 
-                    StepByStepCompress(files, path_destino, qualidade);
-                };
+                btnEnviar.Enabled = false;
 
-                Thread th = new Thread(thSt);
+                Thread th = new Thread(() => GerenciamentoThreads(path_origem, path_destino, qualidade));
                 th.IsBackground = true;
                 th.Start();
             }
@@ -120,23 +108,79 @@ namespace ImageTools
             }
         }
 
+        public void GerenciamentoThreads(object path_origem, object path_destino, object qualidade)
+        {
+
+            int index = 0, interval = 0, limit = 0;
+            Thread[] AvaiablesThreads = new Thread[numberOfCores];
+
+            List<string> files = new List<string>(Directory.GetFiles((string)path_origem));
+
+            if (!Directory.Exists((string)path_destino))
+            {
+                Directory.CreateDirectory((string)path_destino);
+            }
+
+            interval = (int)Math.Round((double)(files.Count / (double)numberOfCores), MidpointRounding.AwayFromZero);
+
+            for (int t = 0; t < numberOfCores; t++)
+            {
+                if(t + 1 == numberOfCores)
+                {
+
+                }
+
+                limit = (files.Count + interval <= files.Count ? interval : files.Count - index - 1);
+
+                AvaiablesThreads[t] = new Thread(() => StepByStepCompress(files.GetRange((index == 0 ? index : ((interval + index + 1) < files.Count ? index + 1 : index)), limit), (string)path_destino, (int)qualidade))
+                {
+                    Name = t.ToString()
+                };
+
+                AvaiablesThreads[t].Start();
+
+                if (t + 1 != numberOfCores)
+                    index += interval;
+            }
+
+
+            /*
+            Thread.Sleep(500);
+
+            for (int t = 0; t < numberOfCores; t++)
+            {
+                AvaiablesThreads[t].Start();
+            }
+            */
+
+            for (int t = 0; t < numberOfCores; t++)
+            {
+                AvaiablesThreads[t].Join();
+            }
+        }
+
+
         public void StepByStepCompress(object files, object path_destino, object qualidade)
         {
-            int numberOfCores = Convert.ToInt32(Math.Round(Environment.ProcessorCount * 0.8, MidpointRounding.AwayFromZero));
-            Thread[] ManyTh = new Thread[numberOfCores];
 
             int qtdeImagens = Directory.GetFiles(folderBrowserOrigem.SelectedPath).Length;
             int qtdeProcessImages = 0;
 
-            foreach (string file in (string[])files)
+            foreach (string file in (List<string>)files)
             {
 
-                if (File.Exists(file) &&  (new FileInfo(file).Length > 0))
+                if (File.Exists(file) && (new FileInfo(file).Length > 0))
                 {
+                    string fileName = Path.GetFileName(file);
 
-                    CompressImageAndSave(file, (string)path_destino, (int)qualidade);
+                    if (File.Exists((string)path_destino + "\\" + Path.GetFileName(file)) && (new FileInfo((string)path_destino + "\\" + Path.GetFileName(file)).Length > 0))
+                    {
+                        fileName = Guid.NewGuid().ToString() + "_" + file;
+                    }
 
-                    AddImageToPreview((string)path_destino + "\\" + Path.GetFileName(file));
+                    CompressImageAndSave(file, fileName, (string)path_destino, (int)qualidade);
+
+                    AddImageToPreview((string)path_destino + "\\" + fileName);
 
                     qtdeProcessImages++;
 
@@ -161,18 +205,20 @@ namespace ImageTools
             }
         }
 
-        public void CompressImageAndSave(string path_image, string destino, int qualidade)
+        public void CompressImageAndSave(string path_image, string fileName, string destino, int qualidade)
         {
             try
             {
                 using Bitmap bmp = new Bitmap(path_image);
+                Thread tr = Thread.CurrentThread;
 
                 EncoderParameter qualityParam = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, qualidade);
                 ImageCodecInfo jpegCodec = GetEncoderInfo("image/jpeg");
                 EncoderParameters encoderParams = new EncoderParameters(1);
                 encoderParams.Param[0] = qualityParam;
 
-                bmp.Save(destino + "\\" + Path.GetFileName(path_image), jpegCodec, encoderParams);
+                //bmp.Save(destino + "\\" + Path.GetFileName(path_image), jpegCodec, encoderParams);
+                bmp.Save(destino + "\\" + tr.Name + "_" + fileName, jpegCodec, encoderParams);
             }
             catch (Exception ex)
             {
