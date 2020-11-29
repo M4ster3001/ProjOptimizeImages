@@ -243,7 +243,7 @@ namespace ImageTools
 
                         CompressImageAndSave(file, fileName, qualidade);
                         //uteis.CompressAndSave(file, qualidade);
-                        AddImageToPreview(fileName);
+                        //AddImageToPreview(fileName);
 
                         Session.QtdeProcessImagens += 1;
 
