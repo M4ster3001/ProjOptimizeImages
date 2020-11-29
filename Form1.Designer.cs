@@ -48,9 +48,12 @@
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.timerBar = new System.Windows.Forms.Timer(this.components);
             this.folderBrowserDestino = new System.Windows.Forms.FolderBrowserDialog();
+            this.gpCompressao = new System.Windows.Forms.GroupBox();
+            this.cbCompression = new System.Windows.Forms.ComboBox();
             this.gbPastas.SuspendLayout();
             this.gbQualidade.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.gpCompressao.SuspendLayout();
             this.SuspendLayout();
             // 
             // gbPastas
@@ -160,7 +163,7 @@
             "100%"});
             this.cbQualidade.Location = new System.Drawing.Point(6, 39);
             this.cbQualidade.Name = "cbQualidade";
-            this.cbQualidade.Size = new System.Drawing.Size(226, 23);
+            this.cbQualidade.Size = new System.Drawing.Size(158, 23);
             this.cbQualidade.TabIndex = 3;
             // 
             // gbQualidade
@@ -168,10 +171,10 @@
             this.gbQualidade.Controls.Add(this.cbQualidade);
             this.gbQualidade.Location = new System.Drawing.Point(12, 218);
             this.gbQualidade.Name = "gbQualidade";
-            this.gbQualidade.Size = new System.Drawing.Size(430, 91);
+            this.gbQualidade.Size = new System.Drawing.Size(190, 91);
             this.gbQualidade.TabIndex = 4;
             this.gbQualidade.TabStop = false;
-            this.gbQualidade.Text = "Qualidade";
+            this.gbQualidade.Text = "Qualidade(.jpeg, .jpg ou .png)";
             // 
             // groupBox1
             // 
@@ -218,11 +221,39 @@
             this.imageList1.ImageSize = new System.Drawing.Size(16, 16);
             this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
             // 
+            // timerBar
+            // 
+            this.timerBar.Tick += new System.EventHandler(this.timerBar_Tick);
+            // 
+            // gpCompressao
+            // 
+            this.gpCompressao.Controls.Add(this.cbCompression);
+            this.gpCompressao.Location = new System.Drawing.Point(238, 218);
+            this.gpCompressao.Name = "gpCompressao";
+            this.gpCompressao.Size = new System.Drawing.Size(204, 91);
+            this.gpCompressao.TabIndex = 6;
+            this.gpCompressao.TabStop = false;
+            this.gpCompressao.Text = "Tipo de compressão(.tiff)";
+            // 
+            // cbCompression
+            // 
+            this.cbCompression.FormattingEnabled = true;
+            this.cbCompression.Items.AddRange(new object[] {
+            "LZW",
+            "CCITT3",
+            "CCITT4",
+            "Rle"});
+            this.cbCompression.Location = new System.Drawing.Point(6, 39);
+            this.cbCompression.Name = "cbCompression";
+            this.cbCompression.Size = new System.Drawing.Size(192, 23);
+            this.cbCompression.TabIndex = 0;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(840, 450);
+            this.Controls.Add(this.gpCompressao);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.gbQualidade);
             this.Controls.Add(this.btnEnviar);
@@ -238,6 +269,7 @@
             this.gbQualidade.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.gpCompressao.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -263,6 +295,8 @@
         private System.Windows.Forms.Label lbProgressBar;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDestino;
+        private System.Windows.Forms.GroupBox gpCompressao;
+        private System.Windows.Forms.ComboBox cbCompression;
     }
 }
 

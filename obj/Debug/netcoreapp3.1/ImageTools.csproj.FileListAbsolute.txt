@@ -2,7 +2,6 @@ D:\ProjectsC#\ImageTools\obj\Debug\netcoreapp3.1\ImageTools.Form1.resources
 D:\ProjectsC#\ImageTools\obj\Debug\netcoreapp3.1\ImageTools.csproj.GenerateResource.cache
 D:\ProjectsC#\ImageTools\obj\Debug\netcoreapp3.1\ImageTools.AssemblyInfoInputs.cache
 D:\ProjectsC#\ImageTools\obj\Debug\netcoreapp3.1\ImageTools.AssemblyInfo.cs
-D:\ProjectsC#\ImageTools\obj\Debug\netcoreapp3.1\ImageTools.csproj.CoreCompileInputs.cache
 D:\ProjectsC#\ImageTools\obj\Debug\netcoreapp3.1\ImageTools.csprojAssemblyReference.cache
 D:\ProjectsC#\ImageTools\bin\Debug\netcoreapp3.1\ImageTools.exe
 D:\ProjectsC#\ImageTools\bin\Debug\netcoreapp3.1\ImageTools.deps.json
@@ -27,3 +26,4 @@ D:\ProjectsC#\ImageTools\obj\Debug\netcoreapp3.1\ImageTools.csproj.CopyComplete
 D:\ProjectsC#\ImageTools\obj\Debug\netcoreapp3.1\ImageTools.dll
 D:\ProjectsC#\ImageTools\obj\Debug\netcoreapp3.1\ImageTools.pdb
 D:\ProjectsC#\ImageTools\obj\Debug\netcoreapp3.1\ImageTools.genruntimeconfig.cache
+D:\ProjectsC#\ImageTools\obj\Debug\netcoreapp3.1\ImageTools.csproj.CoreCompileInputs.cache
