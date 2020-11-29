@@ -252,7 +252,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(840, 450);
+            this.ClientSize = new System.Drawing.Size(1270, 450);
             this.Controls.Add(this.gpCompressao);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.gbQualidade);
@@ -262,7 +262,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Tools";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.gbPastas.ResumeLayout(false);
             this.gbPastas.PerformLayout();

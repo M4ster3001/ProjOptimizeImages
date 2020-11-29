@@ -8,6 +8,7 @@ namespace ImageTools
     {
         private static Int32 _qtdeImagens ;
         private static Int32 _qtdeProcessImagens;
+        private static Int32 _qtdeNucleos;
         private static string _TypeCompression;
         private static string _path_destino;
         private static string _path_origem;
@@ -17,5 +18,6 @@ namespace ImageTools
         public static string Path_origem { get => _path_origem; set => _path_origem = value; }
         public static string Path_destino { get => _path_destino; set => _path_destino = value; }
         public static string TypeCompression { get => _TypeCompression; set => _TypeCompression = value; }
+        public static int QtdeNucleos { get => _qtdeNucleos; set => _qtdeNucleos = value; }
     }
 }

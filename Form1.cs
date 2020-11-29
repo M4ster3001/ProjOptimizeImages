@@ -12,7 +12,6 @@ namespace ImageTools
     {
         private Uteis uteis = new Uteis();
         private ImageList imgList = new ImageList() { ImageSize = new Size(60, 60) };
-        private int numberOfCores = Convert.ToInt32(Math.Round(Environment.ProcessorCount * 0.8, MidpointRounding.AwayFromZero));
 
         public Form1()
         {
@@ -64,20 +63,16 @@ namespace ImageTools
                 listView1.Invoke(new MethodInvoker(delegate
                 {
 
-                    if (listView1.Items.Count >= 9) { listView1.Clear(); GC.Collect(1, GCCollectionMode.Forced); }
+                    //if (listView1.Items.Count >= Session.QtdeNucleos * 2) { listView1.Clear(); GC.Collect(1, GCCollectionMode.Forced); }
 
                     if(File.Exists(Session.Path_destino + "\\" + fileName) && (new FileInfo(Session.Path_destino + "\\" + fileName).Length > 0))
                     {
-
                         string name = System.IO.Path.GetFileName(Session.Path_destino + "\\" + fileName);
                         imgList.Images.Add(name, Image.FromFile(Session.Path_destino + "\\" + fileName));
-
-                        listView1.BeginUpdate();
 
                         ListViewItem lv = listView1.Items.Add(name, name);
                         lv.Tag = name;
 
-                        listView1.EndUpdate();
                     }
 
                 }));
@@ -127,16 +122,16 @@ namespace ImageTools
             try
             {
                 Int32 index = 0, interval = 0, limit = 0;
-                Thread[] AvaiablesThreads = new Thread[numberOfCores];
+                Thread[] AvaiablesThreads = new Thread[Session.QtdeNucleos];
 
                 List<string> files = new List<string>(Directory.GetFiles(Session.Path_origem));
                 List<Dictionary<string, string>> filesPerCore = new List<Dictionary<string, string>>();
 
                 uteis.ChecarDirectory(Session.Path_destino);
 
-                interval = (Int32)Math.Round((double)(files.Count / (double)numberOfCores), MidpointRounding.AwayFromZero);
+                interval = (Int32)Math.Round((double)(files.Count / (double)Session.QtdeNucleos), MidpointRounding.AwayFromZero);
 
-                for (int t = 0; t < numberOfCores; t++)
+                for (int t = 0; t < Session.QtdeNucleos; t++)
                 {
 
                     limit = (files.Count - index >= interval ? interval : files.Count - index);
@@ -147,12 +142,12 @@ namespace ImageTools
 
                     filesPerCore.Add(list);
 
-                    if (t + 1 != numberOfCores)
+                    if (t + 1 != Session.QtdeNucleos)
                         index += interval;
                 }
 
                 #region
-                //for (int t = 0; t < numberOfCores; t++)
+                //for (int t = 0; t < Session.QtdeNucleos; t++)
                 //{
 
                 //    limit = (files.Count - index >= interval ? interval : files.Count - index - 1);
@@ -165,11 +160,11 @@ namespace ImageTools
                 //    AvaiablesThreads[t].IsBackground = true;
                 //    AvaiablesThreads[t].Start();
 
-                //    if (t + 1 != numberOfCores)
+                //    if (t + 1 != Session.QtdeNucleos)
                 //        index += interval;
                 //}
 
-                //for (int t = 0; t < numberOfCores; t++)
+                //for (int t = 0; t < Session.QtdeNucleos; t++)
                 //{
                 //    Int32 actualSize = Math.Min(interval, files.Count - index - 1);
 
@@ -183,21 +178,22 @@ namespace ImageTools
 
                 //    AvaiablesThreads[t].Start();
 
-                //    if (t + 1 != numberOfCores)
+                //    if (t + 1 != Session.QtdeNucleos)
                 //        index += interval;
                 //}
                 #endregion
 
-                for (int t = 0; t < numberOfCores; t++)
+                for (int t = 0; t < Session.QtdeNucleos; t++)
                 {
                     AvaiablesThreads[t] = new Thread(StepByStepCompress);
                     AvaiablesThreads[t].Name = (t + 1).ToString();
+                    //AvaiablesThreads[t].IsBackground = true;
                     AvaiablesThreads[t].Start(filesPerCore[t]);
                 }
 
                 Thread.Sleep(500);
 
-                for (int t = 0; t < numberOfCores; t++)
+                for (int t = 0; t < Session.QtdeNucleos; t++)
                 {
                     AvaiablesThreads[t].Join();
                 }
@@ -208,7 +204,8 @@ namespace ImageTools
                     {
                         btnEnviar.Enabled = true;
                         timerBar.Enabled = false;
-                        //MessageBox.Show("Concluido");
+                        progressBar1.Value = Session.QtdeImagens;
+                        MessageBox.Show("Concluido");
                     }));
                 }
 
@@ -236,6 +233,7 @@ namespace ImageTools
 
                     if (File.Exists(file) && (new FileInfo(file).Length > 0))
                     {
+
                         string fileName = Path.GetFileName(file);
 
                         if (File.Exists(Session.Path_destino + "\\" + fileName) && (new FileInfo(Session.Path_destino + "\\" + fileName).Length > 0))
@@ -243,9 +241,8 @@ namespace ImageTools
                             fileName = Guid.NewGuid().ToString() + "_" + fileName;
                         }
 
-                        //CompressImageAndSave(file, fileName, qualidade);
-                        uteis.CompressAndSave(file, qualidade);
-
+                        CompressImageAndSave(file, fileName, qualidade);
+                        //uteis.CompressAndSave(file, qualidade);
                         AddImageToPreview(fileName);
 
                         Session.QtdeProcessImagens += 1;
@@ -274,11 +271,11 @@ namespace ImageTools
                 EncoderParameters encoderParams = new EncoderParameters(1);
                 encoderParams.Param[0] = qualityParam;
 
-                Thread tr = Thread.CurrentThread;
-                ChecarDirectory(Session.Path_destino + "\\" + tr.Name);
-                bmp.Save(Session.Path_destino + "\\" + tr.Name + "\\" + fileName, extensionCodec, encoderParams);
+                //Thread tr = Thread.CurrentThread;
+                //ChecarDirectory(Session.Path_destino + "\\" + tr.Name);
+                //bmp.Save(Session.Path_destino + "\\" + tr.Name + "\\" + fileName, extensionCodec, encoderParams);
 
-                //bmp.Save(Session.Path_destino + "\\" + fileName, extensionCodec, encoderParams);
+                bmp.Save(Session.Path_destino + "\\" + fileName, extensionCodec, encoderParams);
             }
             catch (Exception ex)
             {
