@@ -42,9 +42,8 @@
             this.gbQualidade = new System.Windows.Forms.GroupBox();
             this.folderBrowserOrigem = new System.Windows.Forms.FolderBrowserDialog();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.lbProgressBar = new System.Windows.Forms.Label();
+            this.lstFiles = new System.Windows.Forms.ListBox();
             this.lbQtde = new System.Windows.Forms.Label();
-            this.listView1 = new System.Windows.Forms.ListView();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.timerBar = new System.Windows.Forms.Timer(this.components);
             this.folderBrowserDestino = new System.Windows.Forms.FolderBrowserDialog();
@@ -178,9 +177,8 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.lbProgressBar);
+            this.groupBox1.Controls.Add(this.lstFiles);
             this.groupBox1.Controls.Add(this.lbQtde);
-            this.groupBox1.Controls.Add(this.listView1);
             this.groupBox1.Controls.Add(this.progressBar1);
             this.groupBox1.Location = new System.Drawing.Point(482, 12);
             this.groupBox1.Name = "groupBox1";
@@ -189,14 +187,16 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Imagens carregadas";
             // 
-            // lbProgressBar
+            // lstFiles
             // 
-            this.lbProgressBar.AutoSize = true;
-            this.lbProgressBar.BackColor = System.Drawing.Color.Transparent;
-            this.lbProgressBar.Location = new System.Drawing.Point(129, 391);
-            this.lbProgressBar.Name = "lbProgressBar";
-            this.lbProgressBar.Size = new System.Drawing.Size(0, 15);
-            this.lbProgressBar.TabIndex = 6;
+            this.lstFiles.FormattingEnabled = true;
+            this.lstFiles.ItemHeight = 15;
+            this.lstFiles.Location = new System.Drawing.Point(6, 28);
+            this.lstFiles.Name = "lstFiles";
+            this.lstFiles.Size = new System.Drawing.Size(334, 304);
+            this.lstFiles.TabIndex = 7;
+            this.lstFiles.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstFiles_DrawItem);
+            this.lstFiles.MeasureItem += new System.Windows.Forms.MeasureItemEventHandler(this.lstFiles_MeasureItem);
             // 
             // lbQtde
             // 
@@ -205,15 +205,6 @@
             this.lbQtde.Name = "lbQtde";
             this.lbQtde.Size = new System.Drawing.Size(0, 15);
             this.lbQtde.TabIndex = 3;
-            // 
-            // listView1
-            // 
-            this.listView1.HideSelection = false;
-            this.listView1.Location = new System.Drawing.Point(6, 22);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(334, 323);
-            this.listView1.TabIndex = 0;
-            this.listView1.UseCompatibleStateImageBehavior = false;
             // 
             // imageList1
             // 
@@ -252,7 +243,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1270, 450);
+            this.ClientSize = new System.Drawing.Size(876, 450);
             this.Controls.Add(this.gpCompressao);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.gbQualidade);
@@ -289,14 +280,13 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.ImageList imageList1;
-        private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.Label lbQtde;
         private System.Windows.Forms.Timer timerBar;
-        private System.Windows.Forms.Label lbProgressBar;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDestino;
         private System.Windows.Forms.GroupBox gpCompressao;
         private System.Windows.Forms.ComboBox cbCompression;
+        private System.Windows.Forms.ListBox lstFiles;
     }
 }
 

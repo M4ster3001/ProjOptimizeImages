@@ -11,7 +11,8 @@ namespace ImageTools
     public partial class Form1 : Form
     {
         private Uteis uteis = new Uteis();
-        private ImageList imgList = new ImageList() { ImageSize = new Size(60, 60) };
+        private const int ItemMargin = 5;
+        private const float PictureHeight = 100f;
 
         public Form1()
         {
@@ -32,8 +33,8 @@ namespace ImageTools
         private void BrowserDialogOrigem(object sender, EventArgs e)
         {
             DialogResult result_origem = folderBrowserOrigem.ShowDialog();
-            listView1.View = View.LargeIcon;
-            listView1.LargeImageList = imgList;
+            //listView1.View = View.LargeIcon;
+            //listView1.LargeImageList = imgList;
 
             if (result_origem == DialogResult.OK)
             {
@@ -42,7 +43,7 @@ namespace ImageTools
                 boxOrigem.Text = folderBrowserOrigem.SelectedPath;
                 boxDestino.Text = folderBrowserOrigem.SelectedPath + "\\" + Guid.NewGuid().ToString();
                 lbQtde.Text = "Total de imagens na pasta: " + qtdeImagens.ToString();
-                listView1.VirtualListSize = qtdeImagens;
+                //listView1.VirtualListSize = qtdeImagens;
             }
         }
 
@@ -58,21 +59,25 @@ namespace ImageTools
 
         private void AddImageToPreview(string fileName)
         {
-            if (listView1.InvokeRequired)
+            if (lstFiles.InvokeRequired)
             {
-                listView1.Invoke(new MethodInvoker(delegate
-                {
-
-                    //if (listView1.Items.Count >= Session.QtdeNucleos * 2) { listView1.Clear(); GC.Collect(1, GCCollectionMode.Forced); }
+                lstFiles.Invoke(new MethodInvoker(delegate
+                {                  
 
                     if(File.Exists(Session.Path_destino + "\\" + fileName) && (new FileInfo(Session.Path_destino + "\\" + fileName).Length > 0))
                     {
-                        string name = System.IO.Path.GetFileName(Session.Path_destino + "\\" + fileName);
-                        imgList.Images.Add(name, Image.FromFile(Session.Path_destino + "\\" + fileName));
+                        lstFiles.DrawMode = DrawMode.OwnerDrawVariable;
+                        lstFiles.Items.Add(fileName);
 
-                        ListViewItem lv = listView1.Items.Add(name, name);
-                        lv.Tag = name;
+                        #region
+                        //lstFiles.Items.Add(fileName);
 
+                        //string name = System.IO.Path.GetFileName(Session.Path_destino + "\\" + fileName);
+                        //imgList.Images.Add(name, Image.FromFile(Session.Path_destino + "\\" + fileName));
+
+                        //ListViewItem lv = listView1.Items.Add(name, name);
+                        //lv.Tag = name;
+                        #endregion
                     }
 
                 }));
@@ -86,10 +91,11 @@ namespace ImageTools
                 timerBar.Enabled = true;
                 string path_origem = boxOrigem.Text;
                 string path_destino = boxDestino.Text;
+                lstFiles.IntegralHeight = false;
 
-                if (cbQualidade.Text == "") { MessageBox.Show("Selecione a qualidade"); return; }
-                if (path_origem == "") { MessageBox.Show("Selecione a pasta de origem"); return; }
-                if (path_destino == "") { MessageBox.Show("Selecione a pasta de destino"); return; }
+                if (string.IsNullOrEmpty(cbQualidade.Text)) { MessageBox.Show("Selecione a qualidade"); return; }
+                if (string.IsNullOrEmpty(path_origem)) { MessageBox.Show("Selecione a pasta de origem"); return; }
+                if (string.IsNullOrEmpty(path_destino)) { MessageBox.Show("Selecione a pasta de destino"); return; }
 
                 Session.Path_origem = path_origem;
                 Session.Path_destino = path_destino;
@@ -113,7 +119,7 @@ namespace ImageTools
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
         }
 
@@ -213,7 +219,7 @@ namespace ImageTools
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
 
         }
@@ -243,7 +249,7 @@ namespace ImageTools
 
                         CompressImageAndSave(file, fileName, qualidade);
                         //uteis.CompressAndSave(file, qualidade);
-                        //AddImageToPreview(fileName);
+                        AddImageToPreview(fileName);
 
                         Session.QtdeProcessImagens += 1;
 
@@ -254,11 +260,11 @@ namespace ImageTools
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
         }
 
-        public void CompressImageAndSave(string path_image, string fileName, int qualidade)
+        public static void CompressImageAndSave(string path_image, string fileName, int qualidade)
         {
             try
             {
@@ -279,7 +285,7 @@ namespace ImageTools
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
         }
 
@@ -362,17 +368,62 @@ namespace ImageTools
             return null;
         }
 
-        private void ChecarDirectory(string path_destino)
-        {
-            if (!Directory.Exists((string)path_destino))
-            {
-                Directory.CreateDirectory((string)path_destino);
-            }
-        }
-
         private void timerBar_Tick(object sender, EventArgs e)
         {
             progressBar1.Value = Session.QtdeProcessImagens;
+        }
+
+        private void lstFiles_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            // Get the ListBox and the item.
+            ListBox lst = sender as ListBox;
+            string fileName = lst.Items[e.Index].ToString();
+            Image _image = Image.FromFile(Session.Path_destino + "\\" + fileName);
+
+            // Draw the background.
+            e.DrawBackground();
+
+            // Draw the picture.
+            float scale = PictureHeight / _image.Height;
+            RectangleF source_rect = new RectangleF(
+                0, 0, _image.Width, _image.Height);
+            float picture_width = scale * _image.Width;
+            RectangleF dest_rect = new RectangleF(
+                e.Bounds.Left + ItemMargin, e.Bounds.Top + ItemMargin,
+                picture_width, PictureHeight);
+            e.Graphics.DrawImage(_image, dest_rect, source_rect, GraphicsUnit.Pixel);
+
+            // See if the item is selected.
+            Brush br;
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+                br = SystemBrushes.HighlightText;
+            else
+                br = new SolidBrush(e.ForeColor);
+
+            // Find the area in which to put the text.
+            float x = e.Bounds.Left + picture_width + 3 * ItemMargin;
+            float y = e.Bounds.Top + ItemMargin;
+            float width = e.Bounds.Right - ItemMargin - x;
+            float height = e.Bounds.Bottom - ItemMargin - y;
+            RectangleF layout_rect = new RectangleF(x, y, width, height);
+
+            // Draw the text.
+            //string txt = (new FileInfo(_image.ToString())).Name;
+            //e.Graphics.DrawString(txt, this.Font, br, layout_rect);
+
+            // Outline the text.
+            //e.Graphics.DrawRectangle(Pens.Red, Rectangle.Round(layout_rect));
+
+            // Draw the focus rectangle if appropriate.
+            e.DrawFocusRectangle();
+
+            GC.Collect(1, GCCollectionMode.Forced);
+            GC.WaitForPendingFinalizers();
+        }
+
+        private void lstFiles_MeasureItem(object sender, MeasureItemEventArgs e)
+        {
+            e.ItemHeight = (int)(PictureHeight + 2 * ItemMargin);
         }
     }
 }
