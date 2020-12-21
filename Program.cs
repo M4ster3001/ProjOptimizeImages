@@ -63,8 +63,8 @@ namespace ImageTools
         internal static void HandleException(Exception ex)
         {
             string LF = Environment.NewLine + Environment.NewLine;
-            string title = $"Ops, algo de errado aconteceu às {DateTime.Now}";
-            string infos = $"Copiei essa mensagem \n\r\n\r" +
+            string title = $"Ops, algo de errado aconteceu Ã s {DateTime.Now}";
+            string infos = $"Copie essa mensagem \n\r\n\r" +
                            $"Message : {LF}{ex.Message}{LF}" +
                            $"Source : {LF}{ex.Source}{LF}" +
                            $"Stack : {LF}{ex.StackTrace}{LF}" +
